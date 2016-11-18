@@ -91,8 +91,8 @@ void CAN2_RX0_IRQHandler(void)
    Four_Wheel_Info.speed_raw[RxMessage.StdId-0x201] = RxMessage.Data[2]*256+RxMessage.Data[3];
 	 Four_Wheel_Info.speed_raw[RxMessage.StdId-0x201] = Four_Wheel_Info.speed_raw[RxMessage.StdId-0x201] /19;
 			
-	 odm[(RxMessage.StdId-0x201)*2]= RxMessage.Data[2];
-   odm[(RxMessage.StdId-0x201)*2+1]  = RxMessage.Data[3];			
+	 odm[(RxMessage.StdId-0x201)*2]= RxMessage.Data[2];//¸ß8Î»
+   odm[(RxMessage.StdId-0x201)*2+1]  = RxMessage.Data[3];		//µÍ8Î»	
 
 }
 

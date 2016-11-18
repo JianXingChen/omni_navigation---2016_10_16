@@ -7,17 +7,19 @@ CanTxMsg TxMessage;
 float delta[4]={0} ;
 extern	int get_yaw_flag;	
 struct Wheel_Info Four_Wheel_Info;
+extern struct PID_PARA_Temp Pid_temp;
+struct PID_Info Wheel_Speed;
 struct PID_PARA Chassis_para = //从这里面更改外环内环参数 
 {
-	5000,20,0,//内环速度
-	4,0,0     //外环角度
+  12000,5,100,//内环速度
+	10000,0,0     //外环角度
 };
 
-
+				
 
 uint8_t Wheel_Speed_control(uint8_t flag)
 {
-struct PID_Info Wheel_Speed;
+
 
 	static int8_t num = 0;
 	int8_t i,wheel_cnt;
@@ -28,6 +30,7 @@ struct PID_Info Wheel_Speed;
 	{		
 		/*(2)计算PID*/
 	  Wheel_Speed.Ek = Four_Wheel_Info.Target_speed[wheel_cnt] - Four_Wheel_Info.speed_raw[wheel_cnt];
+//			  Wheel_Speed.Ek = 50- Four_Wheel_Info.speed_raw[wheel_cnt];
 		delta[wheel_cnt]=Wheel_Speed.Ek;//用来观测差值
 		
 		Wheel_Speed.P_Part  = Wheel_Speed.Ek /100;//P PART 缩小10倍
@@ -35,8 +38,9 @@ struct PID_Info Wheel_Speed;
 		Wheel_Speed.D_Part  = Wheel_Speed.Ek-Wheel_Speed.Ek1;
 		
 		Four_Wheel_Info.out[wheel_cnt] = Chassis_para.core_P * Wheel_Speed.P_Part 
-		                               + Chassis_para.core_I * Wheel_Speed.I_Part
-																	 + Chassis_para.core_D * Wheel_Speed.D_Part;
+		                               + Chassis_para.core_I * Wheel_Speed.I_Part/10000
+																	 + Chassis_para.core_D * Wheel_Speed.D_Part/100;
+
 		
 		Wheel_Speed.Ek1=Wheel_Speed.Ek;
 		

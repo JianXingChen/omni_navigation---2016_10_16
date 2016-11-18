@@ -18,8 +18,8 @@ volatile float angle[3] = {0};
 volatile float yaw_temp,pitch_temp,roll_temp;
 volatile float last_yaw_temp,last_pitch_temp,last_roll_temp;
 volatile float yaw_angle,pitch_angle,roll_angle; //使用到的角度值
-#define Kp 3.5f   // proportional gain， governs rate of convergence to accelerometer/magnetometer
-#define Ki 0.01f   // integral gain， governs rate of convergence of gyroscope biases
+#define Kp 1.5f   // proportional gain， governs rate of convergence to accelerometer/magnetometer
+#define Ki 0.06f   // integral gain， governs rate of convergence of gyroscope biases
 
 // Fast inverse square-root
 /**************************实现函数********************************************
@@ -374,9 +374,10 @@ void IMU_getYawPitchRoll(volatile float * angles)
     angles[2] = atan2(2 * q[2] * q[3] + 2 * q[0] * q[1], -2 * q[1] * q[1] - 2 * q[2] * q[2] + 1)* 180/M_PI; // roll       -pi-----pi  
 }
 
-static int yaw_count = 0;
+float cc;
 void GetPitchYawGxGyGz()
 {
+   static int yaw_count = 0;
 	MPU6050_Real_Data.Gyro_X =  mygetqval[3];
 	MPU6050_Real_Data.Gyro_Y = -mygetqval[4];
 	MPU6050_Real_Data.Gyro_Z =  mygetqval[5];
@@ -385,6 +386,7 @@ void GetPitchYawGxGyGz()
 	
 	last_yaw_temp = yaw_temp;
 	yaw_temp = angle[0]; 
+	cc=yaw_temp-last_yaw_temp;
 	if(yaw_temp-last_yaw_temp>=330)  //yaw轴角度经过处理后变成连续的
 	{
 		yaw_count--;
@@ -393,7 +395,8 @@ void GetPitchYawGxGyGz()
 	{
 		yaw_count++;
 	}
-	yaw_angle = yaw_temp + yaw_count*360;  //yaw轴角度
+//	yaw_angle = yaw_temp + yaw_count*360;  //yaw轴角度
+	yaw_angle = yaw_temp;  //yaw轴角度
 	pitch_angle = angle[1];
   roll_angle = angle[2];	
 }

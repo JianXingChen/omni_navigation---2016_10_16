@@ -2,8 +2,10 @@
 #include "USART3.h"
 #include "imu.h"
 #include "Wheel_Speed.h"
-#define debug 1//配合匿名上位机V4.01使用
-#define normal 0
+#define normal 1//配合匿名上位机V4.01使用
+#define r 0.076 //麦克纳姆轮半径，单位m
+#define pi 3.1415926
+extern char odm[8];
 /*-----USART3_TX-----PB10-----*/
 /*-----USART3_RX-----PB11-----*/
 /*****************************************************************
@@ -26,10 +28,10 @@
 u8 com_data;
 int head_flag=0,end_flag=0,n=0,put_flag,k=1;
 static	int count=0;
-int para_get[8];
-int para_rev_tem[8];
+u8 para_get[8];
+u8 para_rev_tem[8];
 extern char odm[8];
-
+u8 rev_flag=0;
 extern float mygetqval[9];
 u8 data_to_send[0xff];//发送缓存
 u8	RxBuffer[0xff];//接受缓存
@@ -38,8 +40,8 @@ u8 Send_PID3 = 0;//pid2发送标志位
 geometry_msgs_twist liner;
 geometry_msgs_twist  angular;
 struct PID_PARA_Temp Pid_temp;
-
-
+	int _temp;
+u8 twist[16]={0};
 void USART3_Configuration(int32_t baud)
 {
     USART_InitTypeDef usart3;
@@ -80,7 +82,7 @@ void USART3_Configuration(int32_t baud)
 void USART3_Sends(char *buf1)		  //字符串发送函数
 {
 		u8 i=0;
-		for(i=0;i<8;i++)
+		for(i=0;i<16;i++)
 		{	USART_SendData(USART3,buf1[i]);  //发送一个字节
 			while(USART_GetFlagStatus(USART3,USART_FLAG_TXE)==RESET){};//等待发送结束
 			}
@@ -92,51 +94,82 @@ void USART3_Sendb(u8 k)		         //字节发送函数
 } 
 
 
-#if normal
+#if  normal
 void USART3_IRQHandler(void)//接收中断
-{    
+{    static int a=0,b=0,c=0;
 			if(USART_GetITStatus(USART3, USART_IT_RXNE) != RESET)  //接收中断 (接收寄存器非空) 
 			{
+			USART_ClearITPendingBit(USART3,USART_IT_RXNE);//清除中断标志位
 			 com_data =USART_ReceiveData(USART3);
-				if(com_data==0xA0)   head_flag=1;//判断帧头
-				if((com_data==0x06)&&(head_flag==1))
-					{
-					head_flag=0;
-					put_flag=1 ;	
-				}
+				if(rev_flag==0){
+					if(com_data==0xA1) a=1;
+					if((com_data==0xA2)&&(a==1)) b=1;
+					if((com_data==0xA3)&&(b==1)) 	rev_flag=1;	}//只有接收到 A1 A2 A3 串口才工作
+			
+				if(rev_flag==1)
+				{
+					if(com_data==0xA0)   head_flag=1;//判断帧头
+					if((com_data==0x06)&&(head_flag==1))
+						{	head_flag=0;
+							put_flag=1 ;}
 				if(put_flag==1)
-					{
-						para_rev_tem[count]=com_data;	 //从0x06开始存，共存8个
+					{	para_rev_tem[count]=com_data;	 //从0x06开始存，共存8个
 						count++;
 						if(count>=8)	
 						{count=0;put_flag=0;}//第七个数据存完关闭存数据标志位
-					}		
-  		}
-			 if((para_rev_tem[7]==0xA1)&&(count==0))  
+					}	
+				if((para_rev_tem[7]==0xA1)&&(count==0))  
 			 { int i;
-				 for(i=1;i<7;i++) para_get[i]=para_rev_tem[i];//校验第8位数			 
-       }
-		   liner.x   =	para_get[1]*256+para_get[2];
-   		 liner.y   =	para_get[3]*256+para_get[4];
-			 angular.z =  para_get[5]*256+para_get[6];
-			
-		  USART_ClearITPendingBit(USART3,USART_IT_RXNE);//清除中断标志位
+					 for(i=1;i<7;i++) para_get[i]=para_rev_tem[i]; }//校验第8位数			  
+					 liner.tx   =	(para_get[1]*256+para_get[2]);//上位机扩大10000倍发送
+					 liner.ty   =	(para_get[3]*256+para_get[4]);
+					 angular.tz =  (para_get[5]*256+para_get[6]);
+					 liner.x   =	liner.tx/10000.0f;//上位机扩大10000倍发送
+					 liner.y   =	liner.ty/10000.0f;
+					 angular.z =   angular.tz/10000.f;
+					 liner.x   =  (liner.x/r)*30.0f/pi;   //线速度转换成rpm     单位：v=w/r m/s ->rpm
+					 liner.y   =  (liner.y/r)*30.0f/pi; 
+					 angular.z =   angular.z *30.0f/pi;		//角速度转换成rpm     单位：rad/s ->rpm					
+  		} else 
+			  {	
+					liner.x   = 0;                      
+					liner.y   = 0; 
+					angular.z = 0;		
+       	}
+			 	}
+		
 	}
 
-void send_odm_msg()
-{
+void send_odm_msg()//发送第一个和第四个轮子的速度,注意反馈速度取值范围±8191，角度范围±1800，上位机分别应该÷19,÷100;
+{ 
+int i ,j;
+	u8 sum;
+	for(i=0;i<8;i++) twist[i]=odm[i];
 
+    _temp = (int)(yaw_angle*100);
+		twist[8]= BYTE1(_temp);//高8位
+		twist[9]=	BYTE0(_temp);//低8位
+		twist[10]=	0;//高8位
+		twist[11]=	0;//低8位
+		twist[12]=	0;
+		twist[13]=	0;
+		twist[14]=	0;
+		twist[15]=	0;
+		twist[14]=	0;
+		twist[15]=	0;
+		for( j=0;j<16;j++) 	sum += twist[i];
+			
 		USART3_Sendb(0xb0);
-		USART3_Sendb(0x08);
-		USART3_Sends(odm);
+		USART3_Sendb(0x10);
+		USART3_Sends(twist);
 		USART3_Sendb(0xb1);	
 }
 
-#endif
 
 
 
-#if debug
+
+#else
 /************************************************************
 **  说明：以下为下位机发往上位机的函数
 **  data_to_send：发送缓存区。
@@ -165,13 +198,13 @@ void Data_Send_Status(void)//发送姿态
 				data_to_send[_cnt++]=0x01;
 				data_to_send[_cnt++]=0;
 
-				_temp = (int)(yaw_angle*100);
+				_temp = (int)(roll_angle*100);
 				data_to_send[_cnt++]=BYTE1(_temp);
 				data_to_send[_cnt++]=BYTE0(_temp);
 				_temp = (int)(pitch_angle*100);
 				data_to_send[_cnt++]=BYTE1(_temp);
 				data_to_send[_cnt++]=BYTE0(_temp);
-				_temp = (int)(roll_angle*100);
+				_temp = (int)(yaw_angle*100);
 				data_to_send[_cnt++]=BYTE1(_temp);
 				data_to_send[_cnt++]=BYTE0(_temp);
 
@@ -202,10 +235,15 @@ void Data_Send_Sensor(void)//发送姿态原始数据
 				data_to_send[_cnt++]=0xAA;
 				data_to_send[_cnt++]=0x02;
 				data_to_send[_cnt++]=0;
-				data_to_send[_cnt++]=BYTE1(mygetqval[0]);  //加速度x低8
-				data_to_send[_cnt++]=BYTE0(mygetqval[0]);  //加速度x高8
-				data_to_send[_cnt++]=BYTE1(mygetqval[1]);
-				data_to_send[_cnt++]=BYTE0(mygetqval[1]);
+//				data_to_send[_cnt++]=BYTE1(mygetqval[0]);  //加速度x低8
+//				data_to_send[_cnt++]=BYTE0(mygetqval[0]);  //加速度x高8
+				data_to_send[_cnt++]=BYTE1(Four_Wheel_Info.speed_raw[0]);  //加速度x低8
+				data_to_send[_cnt++]=BYTE0(Four_Wheel_Info.speed_raw[0]);  //加速度x高8	
+				data_to_send[_cnt++]=50>>8;
+				data_to_send[_cnt++]=50;
+//		  data_to_send[_cnt++]=BYTE1(mygetqval[1]);
+//			data_to_send[_cnt++]=BYTE0(mygetqval[1]);
+//	
 				data_to_send[_cnt++]=BYTE1(mygetqval[2]);
 				data_to_send[_cnt++]=BYTE0(mygetqval[2]);
 				data_to_send[_cnt++]=BYTE1(mygetqval[3]); //陀螺仪x低8
@@ -284,7 +322,7 @@ void Data_Send_PID1(void)//8.发送pid1
 /************************************************************
 **  说明：下位机解析上位机发送数据函数
 *************************************************************/
-void USART1_IRQHandler(void)
+void USART3_IRQHandler(void)
 {     int RxState=0;
 		 if (USART_GetFlagStatus(USART3, USART_FLAG_ORE) != RESET)//溢出错误标志位
 			{ 

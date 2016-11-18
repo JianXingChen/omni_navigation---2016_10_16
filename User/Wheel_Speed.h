@@ -64,7 +64,7 @@ struct PID_PARA_Temp
 extern struct Wheel_Info Four_Wheel_Info;
 extern struct PID_PARA Chassis_para;
 extern struct PID_Info Chasis_Angular;
-extern struct PID_PARA_Temp Pid_temp;
+  
 uint8_t Wheel_Speed_control(uint8_t flag);
 void Wheel_out(uint8_t out_mode , float * speed_list );
 

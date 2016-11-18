@@ -7,5 +7,6 @@
 #define LED0 PCout(1)	// DS0
 #define LED1 PCout(2)	// DS1	 
 
-void LED_Init(void); 				    
+void LED_Init(void); 				   
+void Laser_Configuration();
 #endif
