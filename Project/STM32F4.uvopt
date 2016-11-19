@@ -218,67 +218,159 @@
         <Ww>
           <count>9</count>
           <WinNumber>1</WinNumber>
+<<<<<<< HEAD
           <ItemText>mangle,0x0A</ItemText>
+=======
+          <ItemText>odm</ItemText>
+>>>>>>> origin/master
         </Ww>
         <Ww>
           <count>10</count>
           <WinNumber>1</WinNumber>
+<<<<<<< HEAD
           <ItemText>liner.x </ItemText>
+=======
+          <ItemText>Four_Wheel_Info,0x0A</ItemText>
+>>>>>>> origin/master
         </Ww>
         <Ww>
           <count>11</count>
           <WinNumber>1</WinNumber>
+<<<<<<< HEAD
           <ItemText>	 liner.y</ItemText>
+=======
+          <ItemText>Wheel_Speed.D_Part</ItemText>
+>>>>>>> origin/master
         </Ww>
         <Ww>
           <count>12</count>
           <WinNumber>1</WinNumber>
+<<<<<<< HEAD
           <ItemText>angular.z</ItemText>
+=======
+          <ItemText>	Chasis_Angular.I_Part </ItemText>
+>>>>>>> origin/master
         </Ww>
         <Ww>
           <count>13</count>
           <WinNumber>1</WinNumber>
+<<<<<<< HEAD
           <ItemText>(null)</ItemText>
+=======
+          <ItemText>	Chasis_Angular.P_Part</ItemText>
+>>>>>>> origin/master
         </Ww>
         <Ww>
           <count>14</count>
           <WinNumber>1</WinNumber>
+<<<<<<< HEAD
           <ItemText>		 liner.tx ,0x0A</ItemText>
+=======
+          <ItemText>	  Wheel_Speed.I_Part</ItemText>
+>>>>>>> origin/master
         </Ww>
         <Ww>
           <count>15</count>
           <WinNumber>1</WinNumber>
+<<<<<<< HEAD
           <ItemText>	 liner.ty ,0x0A</ItemText>
+=======
+          <ItemText>delta</ItemText>
+>>>>>>> origin/master
         </Ww>
         <Ww>
           <count>16</count>
           <WinNumber>1</WinNumber>
+<<<<<<< HEAD
           <ItemText>angular.tz ,0x0A</ItemText>
+=======
+          <ItemText>Chassis_Control_Info.Chassis_angle</ItemText>
+>>>>>>> origin/master
         </Ww>
         <Ww>
           <count>17</count>
           <WinNumber>1</WinNumber>
+<<<<<<< HEAD
           <ItemText>com_data,0x0A</ItemText>
+=======
+          <ItemText>yaw_int</ItemText>
+>>>>>>> origin/master
         </Ww>
         <Ww>
           <count>18</count>
           <WinNumber>1</WinNumber>
+<<<<<<< HEAD
           <ItemText>count,0x0A</ItemText>
+=======
+          <ItemText>Chasis_Angular.Out</ItemText>
+>>>>>>> origin/master
         </Ww>
         <Ww>
           <count>19</count>
           <WinNumber>1</WinNumber>
+<<<<<<< HEAD
           <ItemText>para_get</ItemText>
+=======
+          <ItemText>RC_Ctl.rc.s1</ItemText>
+>>>>>>> origin/master
         </Ww>
         <Ww>
           <count>20</count>
           <WinNumber>1</WinNumber>
+<<<<<<< HEAD
           <ItemText>para_rev_tem</ItemText>
+=======
+          <ItemText>RC_Ctl.rc.s2 </ItemText>
+>>>>>>> origin/master
         </Ww>
         <Ww>
           <count>21</count>
           <WinNumber>1</WinNumber>
+<<<<<<< HEAD
           <ItemText>rx_buffer</ItemText>
+=======
+          <ItemText>liner.x ,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>22</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>liner.y,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>23</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>angular.z ,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>24</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>para_get</ItemText>
+        </Ww>
+        <Ww>
+          <count>25</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>_temp</ItemText>
+        </Ww>
+        <Ww>
+          <count>26</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>RC_Ctl.rc,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>27</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>RC_Ctl.rc.ch1</ItemText>
+        </Ww>
+        <Ww>
+          <count>28</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>cc</ItemText>
+        </Ww>
+        <Ww>
+          <count>29</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>rev_flag,0x0A</ItemText>
+>>>>>>> origin/master
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
@@ -343,8 +435,13 @@
       <Focus>0</Focus>
       <ColumnNumber>13</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
+<<<<<<< HEAD
       <TopLine>17</TopLine>
       <CurrentLine>18</CurrentLine>
+=======
+      <TopLine>1</TopLine>
+      <CurrentLine>2</CurrentLine>
+>>>>>>> origin/master
       <bDave2>0</bDave2>
       <PathWithFileName>..\User\main.c</PathWithFileName>
       <FilenameWithoutPath>main.c</FilenameWithoutPath>
@@ -373,7 +470,11 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
+<<<<<<< HEAD
       <ColumnNumber>44</ColumnNumber>
+=======
+      <ColumnNumber>0</ColumnNumber>
+>>>>>>> origin/master
       <tvExpOptDlg>0</tvExpOptDlg>
       <TopLine>38</TopLine>
       <CurrentLine>39</CurrentLine>
@@ -391,8 +492,8 @@
       <Focus>0</Focus>
       <ColumnNumber>30</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>79</TopLine>
+      <CurrentLine>79</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\User\CAN2.c</PathWithFileName>
       <FilenameWithoutPath>CAN2.c</FilenameWithoutPath>
@@ -511,8 +612,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>216</TopLine>
+      <CurrentLine>224</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\Libraries\stm32f4xx_gpio.c</PathWithFileName>
       <FilenameWithoutPath>stm32f4xx_gpio.c</FilenameWithoutPath>
@@ -543,8 +644,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>546</TopLine>
+      <CurrentLine>552</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\Libraries\stm32f4xx_usart.c</PathWithFileName>
       <FilenameWithoutPath>stm32f4xx_usart.c</FilenameWithoutPath>
@@ -591,8 +692,8 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>176</TopLine>
+      <CurrentLine>182</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\Libraries\startup_stm32f4xx.s</PathWithFileName>
       <FilenameWithoutPath>startup_stm32f4xx.s</FilenameWithoutPath>
@@ -615,8 +716,8 @@
       <Focus>0</Focus>
       <ColumnNumber>30</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>0</TopLine>
-      <CurrentLine>0</CurrentLine>
+      <TopLine>1</TopLine>
+      <CurrentLine>14</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>..\User\led.c</PathWithFileName>
       <FilenameWithoutPath>led.c</FilenameWithoutPath>
@@ -629,10 +730,17 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
+<<<<<<< HEAD
       <ColumnNumber>27</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
       <TopLine>197</TopLine>
       <CurrentLine>144</CurrentLine>
+=======
+      <ColumnNumber>44</ColumnNumber>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <TopLine>105</TopLine>
+      <CurrentLine>107</CurrentLine>
+>>>>>>> origin/master
       <bDave2>0</bDave2>
       <PathWithFileName>..\User\USART3.c</PathWithFileName>
       <FilenameWithoutPath>USART3.c</FilenameWithoutPath>
@@ -685,10 +793,17 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
+<<<<<<< HEAD
       <ColumnNumber>17</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
       <TopLine>54</TopLine>
       <CurrentLine>67</CurrentLine>
+=======
+      <ColumnNumber>11</ColumnNumber>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <TopLine>2</TopLine>
+      <CurrentLine>3</CurrentLine>
+>>>>>>> origin/master
       <bDave2>0</bDave2>
       <PathWithFileName>..\User\clock.c</PathWithFileName>
       <FilenameWithoutPath>clock.c</FilenameWithoutPath>
@@ -709,10 +824,17 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
+<<<<<<< HEAD
       <ColumnNumber>26</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
       <TopLine>0</TopLine>
       <CurrentLine>0</CurrentLine>
+=======
+      <ColumnNumber>30</ColumnNumber>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <TopLine>371</TopLine>
+      <CurrentLine>372</CurrentLine>
+>>>>>>> origin/master
       <bDave2>0</bDave2>
       <PathWithFileName>..\User\imu.c</PathWithFileName>
       <FilenameWithoutPath>imu.c</FilenameWithoutPath>
@@ -743,8 +865,13 @@
       <Focus>0</Focus>
       <ColumnNumber>0</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
+<<<<<<< HEAD
       <TopLine>190</TopLine>
       <CurrentLine>211</CurrentLine>
+=======
+      <TopLine>129</TopLine>
+      <CurrentLine>130</CurrentLine>
+>>>>>>> origin/master
       <bDave2>0</bDave2>
       <PathWithFileName>..\User\mpu6050_i2c.c</PathWithFileName>
       <FilenameWithoutPath>mpu6050_i2c.c</FilenameWithoutPath>
@@ -781,10 +908,17 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
+<<<<<<< HEAD
       <ColumnNumber>5</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
       <TopLine>0</TopLine>
       <CurrentLine>0</CurrentLine>
+=======
+      <ColumnNumber>28</ColumnNumber>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <TopLine>1</TopLine>
+      <CurrentLine>1</CurrentLine>
+>>>>>>> origin/master
       <bDave2>0</bDave2>
       <PathWithFileName>..\User\Chassis_Control.c</PathWithFileName>
       <FilenameWithoutPath>Chassis_Control.c</FilenameWithoutPath>
@@ -797,10 +931,17 @@
       <FileType>1</FileType>
       <tvExp>0</tvExp>
       <Focus>0</Focus>
+<<<<<<< HEAD
       <ColumnNumber>9</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
       <TopLine>0</TopLine>
       <CurrentLine>0</CurrentLine>
+=======
+      <ColumnNumber>27</ColumnNumber>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <TopLine>44</TopLine>
+      <CurrentLine>45</CurrentLine>
+>>>>>>> origin/master
       <bDave2>0</bDave2>
       <PathWithFileName>..\User\Wheel_Speed.c</PathWithFileName>
       <FilenameWithoutPath>Wheel_Speed.c</FilenameWithoutPath>

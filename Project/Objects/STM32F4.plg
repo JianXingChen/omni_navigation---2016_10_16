@@ -3,6 +3,7 @@
 <pre>
 <h1>礦ision Build Log</h1>
 <h2>Project:</h2>
+<<<<<<< HEAD
 G:\文件\2016比赛\stm32\omni_navigation - 2016_11_18\Project\STM32F4.uvproj
 Project File Date:  10/14/2016
 
@@ -120,3 +121,9 @@ compiling USART3.c...
 linking...
 Program Size: Code=27728 RO-data=664 RW-data=332 ZI-data=2444  
 ".\Objects\STM32F4.axf" - 0 Errors, 7 Warning(s).
+=======
+G:\文件\2016比赛\stm32\omni_navigation - 2016_10_5\Project\STM32F4.uvproj
+Project File Date:  10/14/2016
+
+<h2>Output:</h2>
+>>>>>>> origin/master

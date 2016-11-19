@@ -44,6 +44,7 @@ void TIM4_IRQHandler(void)
 			clock_cnt++;	
 			count++;
 		  led_counter++;
+<<<<<<< HEAD
 			enable_getyaw=Get_Time_Micros();
 			enable_getyaw=	enable_getyaw*1.0e-6;//换算成秒
 			
@@ -78,6 +79,38 @@ void TIM4_IRQHandler(void)
 				 }
 			#endif						
 			}
+=======
+	  enable_getyaw=Get_Time_Micros();
+    enable_getyaw=	enable_getyaw*1.0e-6;//换算成秒
+			
+		if( (led_counter >= 1000)&&(rev_flag==0))//没有接收到A1 A2 A3，亮红色
+	  	{	led_counter=0;
+					PCout(1)=1;
+				PCout(2)=~PCout(2); }
+	
+		if( (clock_cnt >= 1000)&&(rev_flag==1))//接受到	A1 A2 A3 亮绿色
+	  	{	clock_cnt=0;
+				PCout(2)=1;
+				PCout(1)=~PCout(1); }
+				
+	if(enable_getyaw>6) {
+		get_yaw_flag=1;//等待yaw角度上升到稳定
+	#if send2pc
+	  if((count >=5)&&(rev_flag==1)) //向上位机发送odm的频率（5*1）,串口调试的时候关闭
+		{
+			count=0;
+			send_odm_msg();
+     }
+ #else
+		if(count >=1) //向上位机发送odm的频率,串口调试的时候关闭，200ms发送一次
+		
+		{
+			count=0;
+		  Data_Exchange()	;//上位机发送程序
+     }
+	#endif						
+	}
+>>>>>>> origin/master
 	
 		if((get_yaw_flag)&&(Remote_flag))//接受到遥控器以及初始化完成在让底盘运动
 			{
