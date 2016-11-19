@@ -34,3 +34,4 @@
 .\objects\usart3.o: ..\Mylib\sys.h
 .\objects\usart3.o: ..\User\Wheel_Speed.h
 .\objects\usart3.o: ..\User\Prepare_data.h
+.\objects\usart3.o: ..\User\mpu6050_driver.h

@@ -2,8 +2,11 @@
 #include "USART3.h"
 #include "imu.h"
 #include "Wheel_Speed.h"
-#define debug 1//配合匿名上位机V4.01使用
-#define normal 0
+#include "mpu6050_driver.h"
+#define normal 1//配合匿名上位机V4.01使用
+#define r 0.076 //麦克纳姆轮半径，单位m
+#define pi 3.1415926
+extern char odm[8];
 /*-----USART3_TX-----PB10-----*/
 /*-----USART3_RX-----PB11-----*/
 /*****************************************************************
@@ -25,11 +28,11 @@
 
 u8 com_data;
 int head_flag=0,end_flag=0,n=0,put_flag,k=1;
-static	int count=0;
-int para_get[8];
-int para_rev_tem[8];
-extern char odm[8];
 
+u8 para_get[8];
+u8 para_rev_tem[8];
+extern char odm[8];
+ u8 rev_flag=0;
 extern float mygetqval[9];
 u8 data_to_send[0xff];//发送缓存
 u8	RxBuffer[0xff];//接受缓存
@@ -38,14 +41,20 @@ u8 Send_PID3 = 0;//pid2发送标志位
 geometry_msgs_twist liner;
 geometry_msgs_twist  angular;
 struct PID_PARA_Temp Pid_temp;
+	int _temp;
+u8 twist[16]={0}; 
+u8 rx_buffer[18];
+int count=0;
 
 
+extern volatile MPU6050_RAW_DATA    MPU6050_Raw_Data;  
 void USART3_Configuration(int32_t baud)
 {
     USART_InitTypeDef usart3;
 		GPIO_InitTypeDef  gpio;
     NVIC_InitTypeDef  nvic;
-
+		DMA_InitTypeDef   dma;
+	
 		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB | RCC_AHB1Periph_DMA1,ENABLE);
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3,ENABLE);
 		
@@ -58,7 +67,8 @@ void USART3_Configuration(int32_t baud)
     gpio.GPIO_Speed = GPIO_Speed_100MHz;
     gpio.GPIO_PuPd = GPIO_PuPd_NOPULL;
 		GPIO_Init(GPIOB,&gpio);
-		
+	
+		USART_DeInit(USART3);
 		usart3.USART_BaudRate = baud;
 		usart3.USART_WordLength = USART_WordLength_8b;
 		usart3.USART_StopBits = USART_StopBits_1;
@@ -67,20 +77,44 @@ void USART3_Configuration(int32_t baud)
     usart3.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
 		USART_Init(USART3,&usart3);
 
-		USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);
 		USART_Cmd(USART3,ENABLE);
     
-    nvic.NVIC_IRQChannel = USART3_IRQn;
+    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0); 
+    nvic.NVIC_IRQChannel = DMA1_Stream1_IRQn;
     nvic.NVIC_IRQChannelPreemptionPriority = 0;
-    nvic.NVIC_IRQChannelSubPriority = 3;
+    nvic.NVIC_IRQChannelSubPriority = 5;
     nvic.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&nvic);
+		
+    USART_DMACmd(USART3,USART_DMAReq_Rx,ENABLE);
+
+    DMA_DeInit(DMA1_Stream1);
+    dma.DMA_Channel=DMA_Channel_4;
+    dma.DMA_PeripheralBaseAddr = (uint32_t)&(USART3->DR);
+    dma.DMA_Memory0BaseAddr = (uint32_t)rx_buffer;
+    dma.DMA_DIR = DMA_DIR_PeripheralToMemory;
+    dma.DMA_BufferSize = 18;
+    dma.DMA_PeripheralInc = DMA_PeripheralInc_Disable;
+    dma.DMA_MemoryInc = DMA_MemoryInc_Enable;
+    dma.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Byte;
+    dma.DMA_MemoryDataSize = DMA_MemoryDataSize_Byte;
+    dma.DMA_Mode = DMA_Mode_Circular;
+    dma.DMA_Priority = DMA_Priority_VeryHigh;
+    dma.DMA_FIFOMode = DMA_FIFOMode_Disable;
+    dma.DMA_FIFOThreshold = DMA_FIFOThreshold_1QuarterFull;
+    dma.DMA_MemoryBurst = DMA_Mode_Normal;
+    dma.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
+    DMA_Init(DMA1_Stream1,&dma);
+
+    DMA_ITConfig(DMA1_Stream1,DMA_IT_TC,ENABLE);
+    DMA_Cmd(DMA1_Stream1,ENABLE);
+
 }
 
 void USART3_Sends(char *buf1)		  //字符串发送函数
 {
 		u8 i=0;
-		for(i=0;i<8;i++)
+		for(i=0;i<16;i++)
 		{	USART_SendData(USART3,buf1[i]);  //发送一个字节
 			while(USART_GetFlagStatus(USART3,USART_FLAG_TXE)==RESET){};//等待发送结束
 			}
@@ -92,51 +126,70 @@ void USART3_Sendb(u8 k)		         //字节发送函数
 } 
 
 
-#if normal
-void USART3_IRQHandler(void)//接收中断
-{    
-			if(USART_GetITStatus(USART3, USART_IT_RXNE) != RESET)  //接收中断 (接收寄存器非空) 
-			{
-			 com_data =USART_ReceiveData(USART3);
-				if(com_data==0xA0)   head_flag=1;//判断帧头
-				if((com_data==0x06)&&(head_flag==1))
-					{
-					head_flag=0;
-					put_flag=1 ;	
-				}
-				if(put_flag==1)
-					{
-						para_rev_tem[count]=com_data;	 //从0x06开始存，共存8个
-						count++;
-						if(count>=8)	
-						{count=0;put_flag=0;}//第七个数据存完关闭存数据标志位
-					}		
-  		}
-			 if((para_rev_tem[7]==0xA1)&&(count==0))  
-			 { int i;
-				 for(i=1;i<7;i++) para_get[i]=para_rev_tem[i];//校验第8位数			 
-       }
-		   liner.x   =	para_get[1]*256+para_get[2];
-   		 liner.y   =	para_get[3]*256+para_get[4];
-			 angular.z =  para_get[5]*256+para_get[6];
-			
-		  USART_ClearITPendingBit(USART3,USART_IT_RXNE);//清除中断标志位
-	}
+#if  normal
 
-void send_odm_msg()
+void DMA1_Stream1_IRQHandler(void)
 {
+    if(DMA_GetITStatus(DMA1_Stream1, DMA_IT_TCIF1))
+    {
+			int i;
+			DMA_ClearFlag(DMA1_Stream1, DMA_FLAG_TCIF1);
+			DMA_ClearITPendingBit(DMA1_Stream1, DMA_IT_TCIF1);
+	 
+			for(i=0;i<10;i++)
+			{
+				 if((rev_flag==0)&&(rx_buffer[i]==0xa1) &&(rx_buffer[i+1]==0xa2) && (rx_buffer[i+2]==0xa3)) rev_flag=1;//与妙算握手				
+				 if((rev_flag==1)&&(rx_buffer[i]==0xa0) &&(rx_buffer[i+1]==0x06) && (rx_buffer[i+8]==0xa1))
+						 {
+						 liner.tx   =	 (rx_buffer[i+2]*256+rx_buffer[i+3])/10000.0f;//上位机扩大10000倍发送
+						 liner.ty   =	 (rx_buffer[i+4]*256+rx_buffer[i+5])/10000.0f;
+						 angular.tz =  (rx_buffer[i+6]*256+rx_buffer[i+7])/10000.0f;
+						 liner.x    =  (liner.x/r)*30.0f/pi;   //线速度转换成rpm     单位：v=w/r m/s ->rpm
+						 liner.y    =  (liner.y/r)*30.0f/pi; 
+						 angular.z  =   angular.z *30.0f/pi;		//角速度转换成rpm     单位：rad/s ->rpm		
+						}
+					else 
+						{	
+							 liner.x=0;  liner.y=0;  angular.z=0;		
+					  }
+			}
+		}
+}
+	
+void send_odm_msg()//发送第一个和第四个轮子的速度,注意反馈速度取值范围±8191，角度范围±1800，上位机分别应该÷19,÷100;
+{ 
+  int i ,j;
+	u8 sum;
+	for(i=0;i<8;i++) twist[i]=odm[i];
 
+    _temp = (int)(yaw_angle*100);
+		twist[8]= BYTE1(_temp);//高8位
+		twist[9]=	BYTE0(_temp);//低8位
+	
+////	  _temp=(int)(MPU6050_Raw_Data.Mag_X *100);
+		_temp=0;
+		twist[10]=	BYTE1(_temp);//高8位
+		twist[11]=	BYTE0(_temp);//低8位
+	
+//		_temp=(int)(MPU6050_Raw_Data.Mag_Y *100);
+	_temp=0;
+		twist[12]=BYTE1(_temp);
+		twist[13]=	BYTE0(_temp);
+	
+//		_temp=(int)(MPU6050_Raw_Data.Mag_Z *100);
+		_temp=0;
+		twist[14]=	BYTE1(_temp);
+		twist[15]=	BYTE0(_temp);
+
+		for( j=0;j<16;j++) 	sum += twist[i];
+			
 		USART3_Sendb(0xb0);
-		USART3_Sendb(0x08);
-		USART3_Sends(odm);
+		USART3_Sendb(0x10);
+		USART3_Sends(twist);
 		USART3_Sendb(0xb1);	
 }
 
-#endif
-
-
-
-#if debug
+#else
 /************************************************************
 **  说明：以下为下位机发往上位机的函数
 **  data_to_send：发送缓存区。
@@ -165,13 +218,13 @@ void Data_Send_Status(void)//发送姿态
 				data_to_send[_cnt++]=0x01;
 				data_to_send[_cnt++]=0;
 
-				_temp = (int)(yaw_angle*100);
+				_temp = (int)(roll_angle*100);
 				data_to_send[_cnt++]=BYTE1(_temp);
 				data_to_send[_cnt++]=BYTE0(_temp);
 				_temp = (int)(pitch_angle*100);
 				data_to_send[_cnt++]=BYTE1(_temp);
 				data_to_send[_cnt++]=BYTE0(_temp);
-				_temp = (int)(roll_angle*100);
+				_temp = (int)(yaw_angle*100);
 				data_to_send[_cnt++]=BYTE1(_temp);
 				data_to_send[_cnt++]=BYTE0(_temp);
 
@@ -202,10 +255,15 @@ void Data_Send_Sensor(void)//发送姿态原始数据
 				data_to_send[_cnt++]=0xAA;
 				data_to_send[_cnt++]=0x02;
 				data_to_send[_cnt++]=0;
-				data_to_send[_cnt++]=BYTE1(mygetqval[0]);  //加速度x低8
-				data_to_send[_cnt++]=BYTE0(mygetqval[0]);  //加速度x高8
-				data_to_send[_cnt++]=BYTE1(mygetqval[1]);
-				data_to_send[_cnt++]=BYTE0(mygetqval[1]);
+//				data_to_send[_cnt++]=BYTE1(mygetqval[0]);  //加速度x低8
+//				data_to_send[_cnt++]=BYTE0(mygetqval[0]);  //加速度x高8
+				data_to_send[_cnt++]=BYTE1(Four_Wheel_Info.speed_raw[0]);  //加速度x低8
+				data_to_send[_cnt++]=BYTE0(Four_Wheel_Info.speed_raw[0]);  //加速度x高8	
+				data_to_send[_cnt++]=50>>8;
+				data_to_send[_cnt++]=50;
+//		  data_to_send[_cnt++]=BYTE1(mygetqval[1]);
+//			data_to_send[_cnt++]=BYTE0(mygetqval[1]);
+//	
 				data_to_send[_cnt++]=BYTE1(mygetqval[2]);
 				data_to_send[_cnt++]=BYTE0(mygetqval[2]);
 				data_to_send[_cnt++]=BYTE1(mygetqval[3]); //陀螺仪x低8
@@ -284,7 +342,7 @@ void Data_Send_PID1(void)//8.发送pid1
 /************************************************************
 **  说明：下位机解析上位机发送数据函数
 *************************************************************/
-void USART1_IRQHandler(void)
+void USART3_IRQHandler(void)
 {     int RxState=0;
 		 if (USART_GetFlagStatus(USART3, USART_FLAG_ORE) != RESET)//溢出错误标志位
 			{ 

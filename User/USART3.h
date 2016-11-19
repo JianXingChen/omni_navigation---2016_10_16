@@ -30,9 +30,13 @@ typedef struct
 
 typedef struct 
 {
-  float x;
-  float y;
-  float z;
+  int16_t tx;
+  int16_t ty;
+  int16_t tz;
+	float x;
+	float y;
+	float z;
+	
 }geometry_msgs_twist;
 
 extern	geometry_msgs_twist liner;
@@ -57,4 +61,5 @@ void Data_Send_Sensor(void);
 void Data_Send_PID1(void);
 void Data_Receive_Anl(u8 *data_buf,u8 num);
 void Data_Send_Check(u8 head, u8 check_sum);
+void Data_Exchange(void);
 #endif

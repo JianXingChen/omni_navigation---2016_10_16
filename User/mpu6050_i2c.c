@@ -201,14 +201,14 @@ int IIC_ReadData(u8 dev_addr,u8 reg_addr,u8 *pdata,u8 count)
     IIC_WriteBit(dev_addr);
 	  if(IIC_WaitAck() == 0xff)
     {
-//        printf("error 2F\r\n");
+
         return 0xff;
     }
     
     IIC_WriteBit(reg_addr);
 	  if(IIC_WaitAck() == 0xff)
     {
-//        printf("error 2G\r\n");
+
         return 0xff;
     }
 	
@@ -217,7 +217,7 @@ int IIC_ReadData(u8 dev_addr,u8 reg_addr,u8 *pdata,u8 count)
     IIC_WriteBit(dev_addr+1);
 	  if(IIC_WaitAck() == 0xff)
     {
-//        printf("error 2H\r\n");
+
         return 0xff;
     }
     

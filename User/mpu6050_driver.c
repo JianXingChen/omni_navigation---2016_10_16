@@ -5,7 +5,7 @@
 volatile MPU6050_RAW_DATA    MPU6050_Raw_Data;    //原始数据
 volatile MPU6050_REAL_DATA   MPU6050_Real_Data;
 extern uint8_t isMPU6050_is_DRY ;
-u16 mangle;
+int mangle;
 GyroCaliStruct_t GyroSavedCaliData;     	    //gyro offset data
 AccCaliStruct_t AccSavedCaliData;    	    	//ACC offset data
 MagCaliStruct_t MagSavedCaliData;			    //Mag offset data
@@ -31,54 +31,54 @@ int MPU6050_Init(void)
     {
         if(temp_data != MPU6050_ID)
         {
-//            printf("error 1A\r\n");
+
             return 0xff; //校验失败，返回0xff
         }
     }
     else
     {
-//        printf("error 1B\r\n");
+
         return 0xff; //读取失败 返回0xff
     }
     
     if(IIC_WriteData(MPU6050_DEVICE_ADDRESS,PWR_MGMT_1,0x01) == 0xff)    //解除休眠状态
     {
-//        printf("error 1C\r\n");
+
         return 0xff;
     }
 		
 
     if(IIC_WriteData(MPU6050_DEVICE_ADDRESS,CONFIG,0x03) == 0xff)         //Digital Low-Pass Filter:DLPF_CFG is 3, Fs is 1khz 
     {                                                                     //acc bandwidth 44Hz,gyro 42Hz
-//        printf("error 1E\r\n");
+
         return 0xff;
     }
     if(IIC_WriteData(MPU6050_DEVICE_ADDRESS,GYRO_CONFIG,0x10) == 0xff)    //FS_SEL 3 : gyroscope full scale range is +-1000degs/s 
     {
-//        printf("error 1F\r\n");
+
         return 0xff;
     }
     if(IIC_WriteData(MPU6050_DEVICE_ADDRESS,ACCEL_CONFIG,0x00) == 0xff)   //AFS_SEL 1: accelerometer full scale range is +-2g
     {
-//        printf("error 1G\r\n");
+
         return 0xff;
     }
     if(IIC_WriteData(MPU6050_DEVICE_ADDRESS,INT_PIN_CFG,0x02) == 0xff)    //logic level for the INT pin is active high
                                                                           //the INT pin emits a 50us long pulse, not latched    bypass mode enabled
     {
-//        printf("error 1H\r\n");
+
         return 0xff;
     }
     if(IIC_WriteData(MPU6050_DEVICE_ADDRESS,INT_ENABLE,0x00) == 0xff)      //disable data ready interrupt
     {
-//        printf("error 1I\r\n");
+
         return 0xff;
     }
 		
 		//设置mpu6050 IIC masters mode  disabled 不让mpu6050控制aux IIC接口
 		if(IIC_WriteData(MPU6050_DEVICE_ADDRESS,MPU6050_RA_USER_CTRL,0x00) == 0xff)      //disable data ready interrupt
     {
-//        printf("error 1I\r\n");
+
         return 0xff;
     }
 		
@@ -89,12 +89,12 @@ int MPU6050_Init(void)
 //		//5883初始化
 		if(HMC5883_Init() == 0xff)
 		{
-//			  printf("error 1K\r\n");
+
         return 0xff;
 		}
 		
     delay_ms(500);
-    //MPU6050_GyroCalibration();
+
     return 0;
 }
 
@@ -102,14 +102,14 @@ int MPU6050_EnableInt(void)
 {
 	  if(IIC_WriteData(MPU6050_DEVICE_ADDRESS,SMPLRT_DIV,0x01)==0xff)      //Sample Rate: Gyro output rate / (1 + 1) = 500Hz
 	  {
-//        printf("Cannot enable interrupt successfully.\r\n");
+
         return 0xff;
 	  }
-//    printf("MPU6050 set sample rate done.\n");
+
 	  delay_ms(10);
 	  if(IIC_WriteData(MPU6050_DEVICE_ADDRESS,INT_ENABLE,0x01) == 0xff)     //enable data ready interrupt 
     {
-//      printf("error 1I\r\n");
+
       return 0xff;
     } 
 #if 0
@@ -136,10 +136,10 @@ void MPU6050_Initialize(void)
 
 int MPU6050_ReadData(uint8_t Slave_Addr, uint8_t Reg_Addr, uint8_t * Data, uint8_t Num)
 {    
-	//IIC_ReadData(MPU6050_DEVICE_ADDRESS,MPU6050_DATA_START,buf,14)
+
     if(IIC_ReadData(Slave_Addr,Reg_Addr,Data,Num) == 0xff)
     {
-//        printf("error 1J\r\n");
+
         return 0xff;
     }
    
@@ -268,13 +268,13 @@ uint8_t HMC5883_Init(void)
     {
         if(tmp_ch != HMC5883_DEVICE_ID_A)
         {
-//            printf("error 2A\r\n");
+
             return 0xff;
         }
     }
     else
     {
-//        printf("error 2B\r\n");
+
         return 0xff;
     }
 
@@ -343,34 +343,7 @@ void  HMC58X3_newValues(int16_t x,int16_t y,int16_t z)
 	}
 	HMC5883_FIFO[2][10]=sum/10;
 	//以上全部为未校准数据
-	if(MagMaxMinData.MinMagX>HMC5883_FIFO[0][10])
-	{
-		MagMaxMinData.MinMagX=(int16_t)HMC5883_FIFO[0][10];
-	}
-	if(MagMaxMinData.MinMagY>HMC5883_FIFO[1][10])
-	{
-		MagMaxMinData.MinMagY=(int16_t)HMC5883_FIFO[1][10];
-	}
-	if(MagMaxMinData.MinMagZ>HMC5883_FIFO[2][10])
-	{
-		MagMaxMinData.MinMagZ=(int16_t)HMC5883_FIFO[2][10];
-	}
-
-	if(MagMaxMinData.MaxMagX<HMC5883_FIFO[0][10])
-	{
-		MagMaxMinData.MaxMagX=(int16_t)HMC5883_FIFO[0][10];		
-	}
-	if(MagMaxMinData.MaxMagY<HMC5883_FIFO[1][10])
-	{
-		MagMaxMinData.MaxMagY = HMC5883_FIFO[1][10];
-	}
-	if(MagMaxMinData.MaxMagZ<HMC5883_FIFO[2][10])
-	{
-		MagMaxMinData.MaxMagZ=(int16_t)HMC5883_FIFO[2][10];
-	}		
-	MagSavedCaliData.MagXOffset=	(MagMaxMinData.MinMagX+MagMaxMinData.MaxMagX)/2;
-	MagSavedCaliData.MagYOffset=	(MagMaxMinData.MinMagY+MagMaxMinData.MaxMagY)/2;
-	MagSavedCaliData.MagZOffset=	(MagMaxMinData.MinMagZ+MagMaxMinData.MaxMagZ)/2;
+	
 }
 
 
@@ -385,7 +358,7 @@ void HMC58X3_getRaw(int16_t *x,int16_t *y,int16_t *z)
 {
     HMC58X3_ReadData(&mpu_buf[14]);
     HMC58X3_newValues((((int16_t)mpu_buf[18] << 8) | mpu_buf[19]), -(((int16_t)mpu_buf[14] << 8) | mpu_buf[15]), ((int16_t)mpu_buf[16] << 8) | mpu_buf[17]);
-    *x = HMC5883_FIFO[0][10];
+    *x = HMC5883_FIFO[0][10];//xyz都是16位寄存器，存储16位补码形式
     *y = HMC5883_FIFO[1][10];
     *z = HMC5883_FIFO[2][10];
 }
@@ -413,16 +386,14 @@ void HMC58X3_mgetValues(volatile float *arry)
 {
     int16_t xr,yr,zr;
     HMC58X3_getRaw(&xr, &yr, &zr);
-//    arry[0]= HMC5883_lastx=((float)(xr - MagSavedCaliData.MagXOffset)) * MagSavedCaliData.MagXScale;
-//    arry[1]= HMC5883_lasty=((float)(yr - MagSavedCaliData.MagYOffset)) * MagSavedCaliData.MagYScale;
+    arry[0]= ((float)(xr - 24)) ;
+    arry[1]=((float)(yr - 10))*1.03 ;
 //    arry[2]= HMC5883_lastz=((float)(zr - MagSavedCaliData.MagZOffset)) * MagSavedCaliData.MagZScale;
-//	  arry[0]= HMC5883_lastx=((float)(xr - MagSavedCaliData.MagXOffset)) * 0.92;
-//    arry[1]= HMC5883_lasty=((float)(yr - MagSavedCaliData.MagYOffset)) * 0.92;
-//    arry[2]= HMC5883_lastz=((float)(zr - MagSavedCaliData.MagZOffset)) * 0.92;
-	    arry[0] = HMC5883_FIFO[0][10];
-      arry[1] = HMC5883_FIFO[1][10]; 
-      arry[2] = HMC5883_FIFO[2][10]; 
-    	mangle=atan2( arry[1], arry[0])*(180/3.14159265)+180;
+
+//	    arry[0] = HMC5883_FIFO[0][10];
+//      arry[1] = HMC5883_FIFO[1][10]; 
+   arry[2] = HMC5883_FIFO[2][10]; 
+  	mangle=atan2( arry[1], arry[0])*(180/3.14159265);
 }
 
 

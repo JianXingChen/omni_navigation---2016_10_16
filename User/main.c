@@ -18,7 +18,7 @@ int main(void)
 	LED_Init();
 	Remote_Config();
 	
-
+  Laser_Configuration();
 	CAN2_Configuration();
 	USART3_Configuration(115200);
 	Wheel_Speed_control(0);
